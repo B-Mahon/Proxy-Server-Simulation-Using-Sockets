@@ -1,0 +1,10 @@
+Things to add next 
+- Functionality for client to receive the length of the message first then display the message
+    - For both server and client when sending a message:
+            1. Send the length of the message first 
+            2. Recipieant of message will first read the length of the message and if its correct then read the message 
+            3. Message sender will always wait for an acknowledgement of some sort back after sending a message 
+    
+- Could add pickle to allow for sending any type of data between server and client 
+
+- Could add a security mechanism in for the proxy so the client has to attach a special key or something that the proxy would read first 
