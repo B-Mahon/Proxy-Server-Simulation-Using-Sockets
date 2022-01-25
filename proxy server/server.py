@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from curses.ascii import ACK
 import socket
 import threading
 HEADER = 64
@@ -24,13 +25,21 @@ class Server:
                 msg = conn.recv(msg_length).decode(FORMAT)
                 if msg == "!DISCONNECTED":
                     print(f"[{addr}] has disconnected....")
+                    message_length = len(ACK_MESSAGE)
+                    message_length = str(message_length).encode(FORMAT)
+                    message_length += b' ' *(HEADER - len(message_length))
+                    conn.send(message_length)
                     conn.send(ACK_MESSAGE.encode(FORMAT))
                     connection = False
                 elif msg == "REQUEST":
                     print(f"[{addr}] has requested content... sending content...")
+                    message_length = len("CONTENT")
+                    conn.send(str(message_length).encode(FORMAT))
                     conn.send("CONTENT".encode(FORMAT))
                 else:
                     print(f"[{addr}] has sent {msg} acknowledging it now...")
+                    message_length = len(ACK_MESSAGE)
+                    conn.send(str(message_length).encode(FORMAT))
                     conn.send(ACK_MESSAGE.encode(FORMAT))
         print(f"[{addr}] is closing connection to server")
         conn.close()        
@@ -46,3 +55,9 @@ class Server:
             print(f" [ACTIVE CONNECTIONS] {threading.active_count() -1}")
 
 
+def main():
+    server = Server()
+    server.start_server()    
+
+if __name__ == "__main__":
+    main()

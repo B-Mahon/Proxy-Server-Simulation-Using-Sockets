@@ -21,10 +21,23 @@ class Client:
         send_length += b' ' *(HEADER - len(send_length))
         self.client.send(send_length)
         self.client.send(message)
-        server_msg = self.client.recv(512).decode(FORMAT)
-        return server_msg
+        wait_for_reply = True
+        while wait_for_reply:
+            msg_length = (self.client.recv(HEADER).decode(FORMAT))
+            if msg_length:
+                msg_length = int(msg_length)
+                print(msg_length)
+                message = (self.client.recv(msg_length).decode(FORMAT))
+                print(message)
+                wait_for_reply = False 
+        return message
 
+def main():
+    client = Client(5550,'127.0.0.1')
+    client.send_message("FORWARD")   
 
+if __name__ == "__main__":
+    main()
 
 
 

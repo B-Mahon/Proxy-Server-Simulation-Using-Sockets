@@ -9,7 +9,7 @@ class Proxy(Server):
     
     def __init__(self):
         super().__init__()
-        self.PORT = 5550
+        self.PORT = 5551
         self.ADDR = (self.SERVER,self.PORT)
         
     def handle_client(self,conn,addr):
@@ -22,6 +22,10 @@ class Proxy(Server):
                 msg = conn.recv(msg_length).decode(FORMAT)
                 if msg == "!DISCONNECTED":
                     print(f"[{addr}] is disconnecting from proxy....")
+                    message_length = len(ACK_MESSAGE)
+                    message_length = str(message_length).encode(FORMAT)
+                    message_length += b' ' *(HEADER - len(message_length))
+                    conn.send(message_length)
                     conn.send(ACK_MESSAGE.encode(FORMAT))
                     connection = False
                 elif msg == "FORWARD":
@@ -29,11 +33,17 @@ class Proxy(Server):
                     thread.start()
                     print(f" [ACTIVE CONNECTIONS] {threading.active_count() -1}")     
                     thread.join()
-                    content=queue.get()
-                    content=content.encode(FORMAT)
-                    conn.send(content)
+                    content = queue.get()
+                    print("CONTENT FROM QUEUE IS ",content)
+                    content_length = len(content)
+                    content_length = str(content_length).encode(FORMAT)
+                    content_length += b' ' *(HEADER - len(content_length))
+                    conn.send(content_length)
+                    conn.send(str(content).encode(FORMAT))
                 else:
                     print(f"message from [{addr}] is not valid for proxy please send FORWARD or !DISCONNECTED\n")
+                    message_length = len(ACK_MESSAGE)
+                    conn.send(str(message_length).encode(FORMAT))
                     conn.send(ACK_MESSAGE.encode(FORMAT))
         conn.close()     
 
@@ -43,7 +53,7 @@ class Proxy(Server):
         #send message to target server 
         content = client.send_message(message)
         print("Printing the content from thread",content)
-        print(client.send_message("!DISCONNECTED"))
+        client.send_message("!DISCONNECTED")
         queue.put(content)
      
 def main():
