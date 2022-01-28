@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import socket
+from internet_protocols import message_protocol,send_ack
 
 FORMAT = "utf-8"
 HEADER = 64
@@ -15,20 +16,13 @@ class Client:
         self.client.connect(self.ADDR)
 
     def send_message(self,msg):
-        message = msg.encode(FORMAT)
-        message_length = len(message)
-        send_length = str(message_length).encode(FORMAT)
-        send_length += b' ' *(HEADER - len(send_length))
-        self.client.send(send_length)
-        self.client.send(message)
+        message_protocol(self.client,msg)
         wait_for_reply = True
         while wait_for_reply:
             msg_length = (self.client.recv(HEADER).decode(FORMAT))
             if msg_length:
                 msg_length = int(msg_length)
-                print(msg_length)
                 message = (self.client.recv(msg_length).decode(FORMAT))
-                print(message)
                 wait_for_reply = False 
         return message
 

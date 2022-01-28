@@ -2,6 +2,7 @@
 from curses.ascii import ACK
 import socket
 import threading
+from internet_protocols import message_protocol,send_ack
 HEADER = 64
 FORMAT = 'utf-8'
 ACK_MESSAGE = "[ACK]"
@@ -25,22 +26,15 @@ class Server:
                 msg = conn.recv(msg_length).decode(FORMAT)
                 if msg == "!DISCONNECTED":
                     print(f"[{addr}] has disconnected....")
-                    message_length = len(ACK_MESSAGE)
-                    message_length = str(message_length).encode(FORMAT)
-                    message_length += b' ' *(HEADER - len(message_length))
-                    conn.send(message_length)
-                    conn.send(ACK_MESSAGE.encode(FORMAT))
+                    send_ack(conn)
                     connection = False
                 elif msg == "REQUEST":
                     print(f"[{addr}] has requested content... sending content...")
-                    message_length = len("CONTENT")
-                    conn.send(str(message_length).encode(FORMAT))
-                    conn.send("CONTENT".encode(FORMAT))
+                    message_protocol(conn,"REQUEST")
                 else:
                     print(f"[{addr}] has sent {msg} acknowledging it now...")
-                    message_length = len(ACK_MESSAGE)
-                    conn.send(str(message_length).encode(FORMAT))
-                    conn.send(ACK_MESSAGE.encode(FORMAT))
+                    send_ack(conn)
+
         print(f"[{addr}] is closing connection to server")
         conn.close()        
 

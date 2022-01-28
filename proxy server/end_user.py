@@ -4,7 +4,7 @@ from client import Client
 def main():
     #create client and connect to the proxy server 
     print("Connecting to PROXY SERVER.....") 
-    client = Client(5551,"127.0.0.1")
+    client = Client(5552,"127.0.0.1")
     #send message to the proxy server to forward to target server
     print("requesting content from target server")
     print(client.send_message("FORWARD"))
